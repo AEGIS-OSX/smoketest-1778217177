@@ -1,14 +1,13 @@
 "use client";
 
+import { FormEvent, useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { type ChangeEvent, type FormEvent, useEffect, useState } from "react";
 
 type FormValues = {
-  first_name: string;
+  firstName: string;
   email: string;
+  consent: boolean;
 };
-
-type FormErrors = Partial<Record<"email" | "consent", string>>;
 
 type SignupPayload = {
   email: string;
@@ -17,308 +16,125 @@ type SignupPayload = {
   consent_timestamp: string;
 };
 
-const formVariants = {
-  hidden: { opacity: 0, y: 24 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.5,
-      ease: "easeOut",
-      staggerChildren: 0.08,
-    },
-  },
-};
-
-const formItemVariants = {
-  hidden: { opacity: 0, y: 16 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.45, ease: "easeOut" },
-  },
-};
-
-function getSourceAttribution(): string {
-  const searchParams = new URLSearchParams(window.location.search);
-  const attributionKeys = [
-    "utm_source",
-    "utm_medium",
-    "utm_campaign",
-    "utm_term",
-    "utm_content",
-    "gclid",
-    "fbclid",
-    "ref",
-  ];
-
-  const capturedParams = new URLSearchParams();
-
-  attributionKeys.forEach((key) => {
-    const value = searchParams.get(key);
-
-    if (value) {
-      capturedParams.set(key, value);
-    }
-  });
-
-  const capturedAttribution = capturedParams.toString();
-
-  return capturedAttribution || "direct";
-}
-
-export default function EmailCaptureSection() {
-  const [values, setValues] = useState<FormValues>({
-    first_name: "",
-    email: "",
-  });
-  const [consentChecked, setConsentChecked] = useState(false);
-  const [errors, setErrors] = useState<FormErrors>({});
+export function EmailCaptureSection() {
+  const [values, setValues] = useState<FormValues>({ firstName: "", email: "", consent: false });
+  const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const [sourceUtm, setSourceUtm] = useState("direct");
-  const [consentTimestamp, setConsentTimestamp] = useState("");
-  const [signupPayload, setSignupPayload] = useState<SignupPayload | null>(null);
 
-  useEffect(() => {
-    setSourceUtm(getSourceAttribution());
+  const sourceUtm = useMemo(() => {
+    if (typeof window === "undefined") {
+      return "direct";
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    return params.get("utm_source") ?? params.get("utm_campaign") ?? "direct";
   }, []);
 
-  const handleTextChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = event.target as HTMLInputElement & {
-      name: keyof FormValues;
-    };
-
-    setValues((currentValues) => ({
-      ...currentValues,
-      [name]: value,
-    }));
-
-    if (name === "email" && errors.email) {
-      setErrors((currentErrors) => ({
-        ...currentErrors,
-        email: undefined,
-      }));
-    }
+  const payload: SignupPayload = {
+    email: values.email,
+    first_name: values.firstName,
+    source_utm: sourceUtm,
+    consent_timestamp: values.consent ? new Date().toISOString() : "",
   };
 
-  const handleConsentChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setConsentChecked(event.target.checked);
-
-    if (errors.consent) {
-      setErrors((currentErrors) => ({
-        ...currentErrors,
-        consent: undefined,
-      }));
-    }
-  };
-
-  const validateForm = () => {
-    const nextErrors: FormErrors = {};
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setError("");
 
     if (!values.email.trim()) {
-      nextErrors.email = "Enter your email address.";
-    }
-
-    if (!consentChecked) {
-      nextErrors.consent = "Consent is required before joining the list.";
-    }
-
-    return nextErrors;
-  };
-
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    const nextErrors = validateForm();
-
-    if (Object.keys(nextErrors).length > 0) {
-      setErrors(nextErrors);
+      setError("Enter your email to join the early access list.");
       return;
     }
 
-    const nextConsentTimestamp = new Date().toISOString();
-    const nextPayload: SignupPayload = {
-      email: values.email.trim(),
-      first_name: values.first_name.trim(),
-      source_utm: sourceUtm,
-      consent_timestamp: nextConsentTimestamp,
-    };
+    if (!values.consent) {
+      setError("Consent is required before we can add you to the waitlist.");
+      return;
+    }
 
     setSubmitting(true);
-    setConsentTimestamp(nextConsentTimestamp);
-    setSignupPayload(nextPayload);
-
-    await new Promise<void>((resolve) => {
-      window.setTimeout(resolve, 400);
-    });
-
-    setSubmitting(false);
-    setSubmitted(true);
-  };
-
-  const currentPayload = signupPayload ?? {
-    email: values.email,
-    first_name: values.first_name,
-    source_utm: sourceUtm,
-    consent_timestamp: consentTimestamp,
-  };
+    window.setTimeout(() => {
+      setSubmitting(false);
+      setSubmitted(true);
+    }, 500);
+  }
 
   return (
     <motion.section
       id="legal"
       className="pw-section pw-section-dark email-section"
-      initial={{ opacity: 0, y: 40 }}
+      initial={{ opacity: 0, y: 24 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-100px" }}
-      transition={{ duration: 0.6, ease: "easeOut" }}
+      viewport={{ once: true, amount: 0.25 }}
+      transition={{ duration: 0.55, ease: "easeOut" }}
     >
-      <div className="email-grid">
-        <motion.div
-          className="email-copy"
-          variants={formVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-80px" }}
-        >
-          <motion.h2 className="email-title" variants={formItemVariants}>
-            Get early access to PawWalk.
-          </motion.h2>
-          <motion.p className="email-microcopy" variants={formItemVariants}>
-            We need only your email and an optional first name. By signing up you agree to receive launch emails from PawWalk. We store your contact in Mailchimp and record consent for future communications. See our privacy policy at /legal.
-          </motion.p>
-        </motion.div>
-
-        <motion.div
-          id="thank-you"
-          className="email-form-shell"
-          variants={formVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-80px" }}
-        >
+      <div className="pw-container email-grid">
+        <div className="email-copy">
+          <h2 className="pw-heading email-title">Get early access to PawWalk.</h2>
+          <p className="pw-body email-microcopy">We need only your email and an optional first name. By signing up you agree to receive launch emails from PawWalk. We store your contact in Mailchimp and record consent for future communications. See our privacy policy at /legal.</p>
+        </div>
+        <div className="email-form-shell" id="thank-you">
           {submitted ? (
-            <motion.div
-              className="email-success"
-              variants={formItemVariants}
-              role="status"
-              aria-live="polite"
-            >
+            <div className="email-success" role="status" aria-live="polite">
               <h3>Thank you.</h3>
-              <p>
-                Check your inbox for a confirmation email. Once verified, we will add you to the waitlist and email next steps for early access.
-              </p>
-            </motion.div>
+              <p>Check your inbox for a confirmation email. Once verified, we will add you to the waitlist and email next steps for early access.</p>
+            </div>
           ) : (
-            <motion.form
-              className="email-form"
-              onSubmit={handleSubmit}
-              variants={formVariants}
-              noValidate
-            >
-              <input
-                type="hidden"
-                name="source_utm"
-                value={currentPayload.source_utm}
-                readOnly
-              />
-              <input
-                type="hidden"
-                name="consent_timestamp"
-                value={currentPayload.consent_timestamp}
-                readOnly
-              />
-
-              <motion.div className="email-field" variants={formItemVariants}>
-                <label className="email-label" htmlFor="pawwalk-first-name">
-                  First name
-                </label>
+            <form className="email-form" onSubmit={handleSubmit} noValidate>
+              <input type="hidden" name="source_utm" value={payload.source_utm} />
+              <input type="hidden" name="consent_timestamp" value={payload.consent_timestamp} />
+              <div className="email-field">
+                <label className="email-label" htmlFor="first_name">First name</label>
                 <input
-                  id="pawwalk-first-name"
-                  className="email-input"
-                  type="text"
+                  id="first_name"
                   name="first_name"
+                  className="email-input pw-input"
+                  type="text"
                   autoComplete="given-name"
-                  value={values.first_name}
-                  onChange={handleTextChange}
+                  value={values.firstName}
+                  onChange={(event) => setValues((current) => ({ ...current, firstName: event.target.value }))}
                   disabled={submitting}
-                  placeholder="First name"
                 />
-              </motion.div>
-
-              <motion.div className="email-field" variants={formItemVariants}>
-                <label className="email-label" htmlFor="pawwalk-email">
-                  Email
-                </label>
+              </div>
+              <div className="email-field">
+                <label className="email-label" htmlFor="email">Email</label>
                 <input
-                  id="pawwalk-email"
-                  className="email-input"
-                  type="email"
+                  id="email"
                   name="email"
+                  className="email-input pw-input"
+                  type="email"
                   autoComplete="email"
+                  required
                   value={values.email}
-                  onChange={handleTextChange}
+                  onChange={(event) => setValues((current) => ({ ...current, email: event.target.value }))}
                   disabled={submitting}
-                  required
-                  aria-invalid={Boolean(errors.email)}
-                  aria-describedby={errors.email ? "pawwalk-email-error" : undefined}
-                  placeholder="you@example.com"
+                  aria-describedby={error ? "email-error" : undefined}
                 />
-                {errors.email ? (
-                  <p id="pawwalk-email-error" className="email-error" role="alert">
-                    {errors.email}
-                  </p>
-                ) : null}
-              </motion.div>
-
-              <motion.div className="email-checkbox-row" variants={formItemVariants}>
+              </div>
+              <label className="email-checkbox-row" htmlFor="email-consent">
                 <input
-                  id="pawwalk-consent"
-                  className="email-checkbox"
-                  type="checkbox"
+                  id="email-consent"
                   name="consent"
-                  checked={consentChecked}
-                  onChange={handleConsentChange}
-                  disabled={submitting}
+                  className="email-checkbox pw-checkbox"
+                  type="checkbox"
                   required
-                  aria-invalid={Boolean(errors.consent)}
-                  aria-describedby={errors.consent ? "pawwalk-consent-error" : undefined}
+                  checked={values.consent}
+                  onChange={(event) => setValues((current) => ({ ...current, consent: event.target.checked }))}
+                  disabled={submitting}
                 />
-                <label className="email-label" htmlFor="pawwalk-consent">
-                  I agree to receive launch emails from PawWalk and consent to the storage of my contact information. (required)
-                </label>
-              </motion.div>
-
-              {errors.consent ? (
-                <motion.p
-                  id="pawwalk-consent-error"
-                  className="email-error"
-                  role="alert"
-                  variants={formItemVariants}
-                >
-                  {errors.consent}
-                </motion.p>
-              ) : null}
-
-              <motion.button
-                className="email-submit"
-                type="submit"
-                disabled={submitting}
-                aria-busy={submitting}
-                whileHover={submitting ? undefined : { scale: 1.02 }}
-                whileTap={submitting ? undefined : { scale: 0.98 }}
-                variants={formItemVariants}
-              >
-                Get Early Access
+                <span>I agree to receive launch emails from PawWalk and consent to the storage of my contact information. (required)</span>
+              </label>
+              {error ? <p className="email-error" id="email-error" role="alert">{error}</p> : null}
+              <motion.button className="email-submit pw-button-primary" type="submit" disabled={submitting} whileHover={{ scale: submitting ? 1 : 1.02 }} whileTap={{ scale: submitting ? 1 : 0.98 }}>
+                {submitting ? "Submitting..." : "Get Early Access"}
               </motion.button>
-            </motion.form>
+            </form>
           )}
-
-          <p className="email-legal">
-            By joining the list you consent to receive emails about PawWalk launch updates. You may remove your email at any time. We respect your privacy and record consent.
-          </p>
-        </motion.div>
+          <p className="email-legal pw-small">By joining the list you consent to receive emails about PawWalk launch updates. You may remove your email at any time. We respect your privacy and record consent.</p>
+        </div>
       </div>
     </motion.section>
   );
 }
+
+export default EmailCaptureSection;
