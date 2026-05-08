@@ -3,9 +3,18 @@
 import { motion } from "framer-motion";
 
 const steps = [
-  "1. Sign up for early access. Enter your email and preferred neighborhood times.",
-  "2. We match you with a local, vetted walker when a slot opens.",
-  "3. Receive live updates during the walk, and a summary when it’s done.",
+  {
+    label: "Sign up",
+    body: "1. Sign up for early access. Enter your email and preferred neighborhood times.",
+  },
+  {
+    label: "Match",
+    body: "2. We match you with a local, vetted walker when a slot opens.",
+  },
+  {
+    label: "Updates",
+    body: "3. Receive live updates during the walk, and a summary when it’s done.",
+  },
 ];
 
 export function HowItWorksSection() {
@@ -13,10 +22,10 @@ export function HowItWorksSection() {
     <motion.section
       id="about"
       className="pw-section pw-section-dark how-section"
-      initial={{ opacity: 0, y: 24 }}
+      initial={{ opacity: 0, y: 40 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.25 }}
-      transition={{ duration: 0.55, ease: "easeOut" }}
+      viewport={{ once: true, margin: "-100px" }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
     >
       <div className="pw-container how-grid">
         <div className="how-intro">
@@ -28,17 +37,19 @@ export function HowItWorksSection() {
           {steps.map((step, index) => (
             <motion.div
               className="how-step"
-              key={step}
+              key={step.body}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.3 }}
+              viewport={{ once: true, margin: "-100px" }}
               transition={{ delay: index * 0.08, duration: 0.45, ease: "easeOut" }}
             >
-              <span className="how-step-number">0{index + 1}</span>
-              <p className="how-step-text">{step}</p>
+              <p className="pw-meta how-step-label">{step.label}</p>
+              <p className="how-step-text">{step.body}</p>
             </motion.div>
           ))}
-          <p className="how-closing">PawWalk matches urban dog owners with vetted, insured local walkers. We prioritize reliable service, clear pricing, and respectful communication.</p>
+          <p className="how-closing">
+            PawWalk matches urban dog owners with vetted, insured local walkers. We prioritize reliable service, clear pricing, and respectful communication.
+          </p>
         </div>
       </div>
     </motion.section>
