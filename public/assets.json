@@ -1,31 +1,31 @@
 {
   "hero": {
-    "url": "",
-    "alt": "",
+    "url": "https://zkvkbpxrxnfynqqeytke.supabase.co/storage/v1/object/public/marketing-assets/smoketest-1778217177/cleo/1778217937769-hero.png",
+    "alt": "Lead hero image showing a cropped urban dog-walking moment on wet pavement, with deep slate surfaces, brass leash hardware, and restrained coral reflection. It fits the museum-at-midnight direction by",
     "width": 1920,
     "height": 1080
   },
   "feature_1": {
-    "url": "",
-    "alt": "",
+    "url": "https://zkvkbpxrxnfynqqeytke.supabase.co/storage/v1/object/public/marketing-assets/smoketest-1778217177/cleo/1778217935049-feature_1.png",
+    "alt": "Flexible scheduling support image showing a brass watch, folded blank schedule card, olive leash, and a partial dog paw on a deep slate surface. It translates the feature into a tactile editorial stil",
     "width": 800,
     "height": 600
   },
   "feature_2": {
-    "url": "",
-    "alt": "",
+    "url": "https://zkvkbpxrxnfynqqeytke.supabase.co/storage/v1/object/public/marketing-assets/smoketest-1778217177/cleo/1778217934005-feature_2.png",
+    "alt": "Vetted walkers and trust image showing a close crop of a leash clip being secured to a dog harness at a slate-black urban doorway. The brass hardware, olive sleeve, and restrained coral stitch reinfor",
     "width": 800,
     "height": 600
   },
   "feature_3": {
-    "url": "",
-    "alt": "",
+    "url": "https://zkvkbpxrxnfynqqeytke.supabase.co/storage/v1/object/public/marketing-assets/smoketest-1778217177/cleo/1778217934703-feature_3.png",
+    "alt": "Real-time updates and safety image showing a face-down phone, brass dog tag, folded city map, leash, and a single coral marker on warm stone linen. It suggests service reliability while avoiding fake ",
     "width": 800,
     "height": 600
   },
   "social_proof": {
-    "url": "",
-    "alt": "",
+    "url": "https://zkvkbpxrxnfynqqeytke.supabase.co/storage/v1/object/public/marketing-assets/smoketest-1778217177/cleo/1778217949446-social_proof.png",
+    "alt": "Social proof background image showing a calm dog in a late-evening apartment lobby beside a brass plaque, stone bench, olive leash, and one coral floral accent. The blank slate wall gives testimonial ",
     "width": 1200,
     "height": 800
   }
