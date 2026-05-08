@@ -1,12 +1,23 @@
-import type { Metadata } from 'next';
-import './globals.css';
+import type { Metadata } from "next";
+import "./globals.css";
+
+const title = "PawWalk — Reliable dog walks, scheduled for your day";
+const description = "Sign up for early access to PawWalk. Flexible scheduling, vetted walkers, live walk updates, and clear pricing. Get Early Access.";
 
 export const metadata: Metadata = {
-  title: 'smoketest-1778217177',
-  description: 'AEGIS-generated project',
+  title,
+  description,
+  openGraph: {
+    title,
+    description,
+  },
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   return (
     <html lang="en">
       <body>{children}</body>
